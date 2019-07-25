@@ -229,7 +229,8 @@ def silenceRemovalWrapper(inputFile, smoothingWindow, weight):
 
 def speakerDiarizationWrapper(inputFile, numSpeakers, useLDA):
     if useLDA:
-        cls = aS.speakerDiarization(inputFile, numSpeakers, plot_res=True)
+        #cls = aS.speakerDiarization(inputFile, numSpeakers, plot_res=True)
+        cls = aS.speakerDiarization(inputFile, numSpeakers, plot_res=False)
 
         sound = AudioSegment.from_file(inputFile)
         print("type = ", type(sound))
@@ -253,28 +254,38 @@ def speakerDiarizationWrapper(inputFile, numSpeakers, useLDA):
         sound = AudioSegment.from_file(inputFile)
         speaker_0 = AudioSegment.silent(100)
         speaker_1 = AudioSegment.silent(100)
-        cls = aS.speakerDiarization(inputFile, numSpeakers, lda_dim=0, plot_res=True)
+        #cls = aS.speakerDiarization(inputFile, numSpeakers, lda_dim=0, plot_res=True)
+        cls = aS.speakerDiarization(inputFile, numSpeakers, lda_dim=0, plot_res=False)
 
-        print("type = ", type(sound))
+        #print("type = ", type(sound))
 
         segs,flags = aS.flags2segs(cls, 0.2)    
 
         for s in range(segs.shape[0]):
+
             if(flags[s] == 0.0):
-                print("Inside 0")
+                #print("Inside 0")
                 start = round(segs[s,0]*1000)
                 end = round(segs[s,1]*1000 + 1)
                 speaker_0 = speaker_0.append(sound[start : end] , crossfade = 100)
 
             elif(flags[s] == 1.0):
-                print("Inside 1")
+                #print("Inside 1")
                 start = round(segs[s,0]*1000)
                 end = round((segs[s,1])*1000 + 1)
                 speaker_1 = speaker_1.append(sound[start : end],crossfade = 100)
-            print("{} {} {}\n".format(segs[s,0], segs[s,1], flags[s]))
 
-        speaker_0.export("./ExportedData/Speaker_0.wav", format="wav")
-        speaker_1.export("./ExportedData/Speaker_1.wav", format="wav")
+# LINE TO PRINT THE STARTING AND ENDING TIMEINGS OF SEGMENTS OF DIFFERENT SPEAKERS
+            #print("{} {} {}\n".format(segs[s,0], segs[s,1], flags[s]))
+        
+        l = inputFile
+        arr = l.split('/')              # To make path split by "/"
+        name = arr[-1].split('.')[0]    # To get the file name which'll be last element in "arr" list          
+        #print(name)                    # and separate it from it's extension using "split('.')"
+                                        
+
+        speaker_0.export("./ExportedData/"+name+"_0.wav", format="wav")
+        speaker_1.export("./ExportedData/"+name+"_1.wav", format="wav")
 
 
 
